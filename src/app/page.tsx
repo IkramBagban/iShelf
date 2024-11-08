@@ -1,45 +1,83 @@
-import Image from "next/image";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ThumbsUp, ThumbsDown, MessageCircle } from "lucide-react";
 
-const Card = () => {
+const ArticleCard = () => {
   return (
-    <div className="border p-4 flex flex-col">
-      <div className="flex flex-col gap-3">
-        <h5>Title</h5>
-        <p>
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptatum
-          ea eaque impedit autem beatae quidem, sunt non adipisci
+    <Card className="border rounded-lg shadow-sm hover:shadow-md transition duration-200 ease-in-out">
+      <CardHeader>
+        <CardTitle className="text-xl">JavaScript Tips and Tricks</CardTitle>
+        <CardDescription className="text-muted-foreground">
+          Updated on Nov 7, 2024
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-gray-600">
+          Discover essential JavaScript tips to improve your coding skills and
+          write more efficient code. Get insights on best practices...
         </p>
-      </div>
-
-      <div className="flex justify-between mx-4">
-        <div className="flex gap-3">
-          <div>Like</div>
-          <div>Dislike</div>
+        <div className="flex justify-between items-center mt-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <ThumbsUp className="w-4 h-4" /> Like
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <ThumbsDown className="w-4 h-4" /> Dislike
+            </Button>
+          </div>
+          <Button variant="ghost" size="sm" className="flex items-center gap-1">
+            <MessageCircle className="w-4 h-4" /> Comment
+          </Button>
         </div>
-
-        <div>comment</div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
 export default function Home() {
   return (
-    <div className="flex gap-4">
-      {/* SIDE BAR  */}
-      <div className="flex flex-col border-b gap-4 p-3 w-[20%] h-[100%]">
-        <div> Lorem ipsum dolor sit, amet</div>
-        <div> Lorem ipsum dolor sit, amet</div>
-        <div> Lorem ipsum dolor sit, amet</div>
-        <div> Lorem ipsum dolor sit, amet</div>
-      </div>
+    <div className="flex gap-6 p-6">
+      {/* SIDE BAR */}
+      <aside className="flex flex-col bg-muted rounded-lg p-4 w-[20%] h-auto shadow-lg">
+        <div className="space-y-4">
+          <Badge variant="outline" className="w-full py-2 text-center">
+            JavaScript
+          </Badge>
+          <Badge variant="outline" className="w-full py-2 text-center">
+            Web Development
+          </Badge>
+          <Badge variant="outline" className="w-full py-2 text-center">
+            UI/UX Design
+          </Badge>
+          <Badge variant="outline" className="w-full py-2 text-center">
+            React.js
+          </Badge>
+        </div>
+      </aside>
 
-      {/* articles cards */}
-      <div className="flex gap-4 wrap w-[80%]">
-        {[1, 2, 3, 4, 5,7,8,9].map((_, index) => {
-          return <Card key={index} />;
-        })}
-      </div>
+      {/* Article Cards */}
+      <main className="flex flex-wrap gap-6 w-[80%]">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => (
+          <div key={index} className="w-full md:w-[45%] lg:w-[30%]">
+            <ArticleCard />
+          </div>
+        ))}
+      </main>
     </div>
   );
 }
