@@ -8,11 +8,11 @@ const Navbar = () => {
       <div className="flex items-center space-x-4">
         <div className="text-lg font-bold">iShelf</div>
       </div>
-      {/* <div className="flex space-x-4">
+      <div className="flex space-x-4">
         <Button variant="outline">Home</Button>
         <Button variant="outline">Categories</Button>
         <Button variant="outline">Add Resource</Button>
-      </div> */}
+      </div>
     </div>
   );
 };
