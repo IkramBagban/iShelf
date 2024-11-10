@@ -113,8 +113,7 @@ export default function Home() {
       </div>
 
       <div className="flex gap-6">
-        {/* SIDE BAR */}
-        <aside className="flex flex-col bg-muted rounded-lg p-4 w-[20%] h-auto shadow-lg">
+        {/* <aside className="flex flex-col bg-muted rounded-lg p-4 w-[20%] h-auto shadow-lg">
           <div className="space-y-4">
             <Badge variant="outline" className="w-full py-2 text-center">
               JavaScript
@@ -129,10 +128,9 @@ export default function Home() {
               React.js
             </Badge>
           </div>
-        </aside>
+        </aside> */}
 
-        {/* Article Cards */}
-        <main className="flex flex-wrap gap-6 w-[80%]">
+        <main className="flex flex-wrap gap-6 w-full">
           {filteredArticles.length > 0 ? (
             filteredArticles.map((article, index) => (
               <div key={index} className="w-full md:w-[45%] lg:w-[30%]">
