@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/db/index";
 import bcrypt from "bcrypt";
 
+interface IUser {
+  fullName: string;
+  email: string;
+  password?: string;
+}
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const user: {
-      fullName: string;
-      email: string;
-      password: string;
-    } = await req.json();
+    const user: IUser = await req.json();
 
     const requiredFields = [];
     if (!user.fullName) {
@@ -37,6 +38,8 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
         password: hashPassword,
       },
     });
+
+    delete (response as IUser).password;
 
     return NextResponse.json(
       { message: "Success", data: response },
