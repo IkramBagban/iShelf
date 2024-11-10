@@ -1,6 +1,15 @@
+"use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
-
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Sun, LogOut, User } from "lucide-react";
 
 const Navbar = () => {
   return (
@@ -8,14 +17,33 @@ const Navbar = () => {
       <div className="flex items-center space-x-4">
         <div className="text-lg font-bold">iShelf</div>
       </div>
-      <div className="flex space-x-4">
-        <Button variant="outline">Home</Button>
-        <Button variant="outline">Categories</Button>
-        <Button variant="outline">Add Resource</Button>
+
+      <div className="flex items-center space-x-4">
+        <Button variant="outline">Add</Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="cursor-pointer">
+              <AvatarFallback>IB</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>
+              <User className="mr-2 h-4 w-4" /> Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Sun className="mr-2 h-4 w-4" /> Switch Theme
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <LogOut className="mr-2 h-4 w-4" /> Log Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
 };
 
-
-export default Navbar
+export default Navbar;
