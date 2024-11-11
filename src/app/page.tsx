@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ThumbsUp, ThumbsDown, MessageCircle, Search } from "lucide-react";
+import axios from "axios";
 
 // Article Card Component
 const ArticleCard = ({ title, description }) => {
@@ -52,41 +53,30 @@ const ArticleCard = ({ title, description }) => {
 };
 
 export default function Home() {
-  const articles = [
-    {
-      title: "JavaScript Tips and Tricks",
-      description:
-        "Discover essential JavaScript tips to improve your coding skills and write more efficient code. Get insights on best practices...",
-    },
-    {
-      title: "React Performance Optimization",
-      description:
-        "Learn how to optimize your React apps for better performance, including tips on memoization and code-splitting...",
-    },
-    {
-      title: "CSS Grid vs Flexbox",
-      description:
-        "A comprehensive guide on when to use CSS Grid and Flexbox, with real-world examples and best practices...",
-    },
-    {
-      title: "Web Development Trends 2024",
-      description:
-        "Stay ahead of the curve with the latest trends in web development for 2024, from AI integration to new frameworks...",
-    },
-    {
-      title: "UI/UX Design Principles",
-      description:
-        "Explore the fundamental principles of UI/UX design to create more user-friendly and visually appealing interfaces...",
-    },
-  ];
+  const [articles, setArticles] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredArticles, setFilteredArticles] = useState(articles);
 
-  const handleSearch = (e) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await axios.get("/api/articles");
+      console.log("RSPONSE", response.data.data);
+
+      if (response.status === 200) {
+        setArticles(response.data.data);
+        setFilteredArticles(response.data.data);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!articles) return console.log("articles state is null");
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    const filtered = articles.filter((article) =>
+    const filtered = articles?.filter((article: any) =>
       article.title.toLowerCase().includes(query)
     );
     setFilteredArticles(filtered);
@@ -126,7 +116,7 @@ export default function Home() {
         </aside> */}
 
         <main className="flex flex-wrap gap-6 w-full">
-          {filteredArticles.length > 0 ? (
+          {filteredArticles?.length > 0 ? (
             filteredArticles.map((article, index) => (
               <div key={index} className="w-full md:w-[45%] lg:w-[30%]">
                 <ArticleCard
