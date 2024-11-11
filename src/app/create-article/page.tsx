@@ -40,9 +40,14 @@ const CreateArticle = () => {
       content,  
     });
 
+    if(response.status === 201){
+      setTitle('');
+      setDescription('')
+      setContent('')
+      router.push("/")
+    }
     console.log("response", response);
   };
-  console.log(content);
 
   return (
     <div className="mx-auto p-4 space-y-6">
