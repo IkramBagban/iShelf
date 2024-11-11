@@ -1,12 +1,17 @@
 "use client";
 import CustomEditor from "@/components/CustomEditor";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import axios from "axios";
 
 const CreateArticle = () => {
   const [content, setContent] = useState<string>("");
 
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+
+  const router = useRouter();
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -21,14 +26,33 @@ const CreateArticle = () => {
     setContent(e.currentTarget.value);
   };
 
+  const handlerSaveArticle = async () => {
+    console.log("IKRAM");
+    console.log({
+      title,
+      description,
+      content,
+    });
+
+    const response = await axios.post("/api/articles", {
+      title,
+      description,
+      content,  
+    });
+
+    console.log("response", response);
+  };
   console.log(content);
 
   return (
     <div className="mx-auto p-4 space-y-6">
       <div className="w-full p-4 border rounded-lg shadow-md bg-gray-50">
-        <h2 className="text-xl font-medium mb-4 text-gray-700">
-          Article Details
-        </h2>
+        <div className="w-full flex justify-between">
+          <h2 className="text-xl font-medium mb-4 text-gray-700">
+            Article Details
+          </h2>
+          <Button onClick={handlerSaveArticle}>Save</Button>
+        </div>
 
         <div className="space-y-4">
           <div>
