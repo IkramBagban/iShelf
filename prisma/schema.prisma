@@ -14,8 +14,43 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
   fullName String
   password String
+  articles Article[]
+
+  Reply Reply[]
+}
+
+model Article {
+  id          Int       @id @default(autoincrement())
+  uid         Int
+  title       String
+  description String
+  content     String
+  likes       Int[]
+  dislikes    Int[]
+  comments    Comment[]
+
+  user User @relation(fields: [uid], references: [id])
+}
+
+model Comment {
+  id        Int     @id @default(autoincrement())
+  comment   String
+  articleId Int
+  replies   Reply[]
+
+  article Article @relation(fields: [articleId], references: [id])
+}
+
+model Reply {
+  id          Int    @id @default(autoincrement())
+  reply       String
+  commentId   Int
+  commenterId Int
+
+  commenter User    @relation(fields: [commenterId], references: [id])
+  comment   Comment @relation(fields: [commentId], references: [id])
 }
