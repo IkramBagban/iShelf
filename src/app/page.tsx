@@ -1,5 +1,4 @@
-"use client"
-
+"use client";
 
 import React, { useState } from "react";
 import {
@@ -52,9 +51,7 @@ const ArticleCard = ({ title, description }) => {
   );
 };
 
-// Main Home Component
 export default function Home() {
-  // Sample Articles Data
   const articles = [
     {
       title: "JavaScript Tips and Tricks",
@@ -86,7 +83,6 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredArticles, setFilteredArticles] = useState(articles);
 
-  // Filter articles based on the search query
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
@@ -98,7 +94,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Search Bar */}
       <div className="flex items-center gap-4 mb-6">
         <Input
           type="text"
