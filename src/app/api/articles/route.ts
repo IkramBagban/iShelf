@@ -29,11 +29,14 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 };
 
 export const GET = async (req: NextRequest): Promise<NextResponse> => {
+  const url = new URL(req.url);
+  const page: number = Number(url.searchParams.get("page")) || 5;
+  const pageSize: number = Number(url.searchParams.get("pageSize")) || 10;
+
   try {
-    const response = await db.article.findMany({
-      where: {
-        uid: 1,
-      },
+    const articles = await db.article.findMany({
+      skip: (page - 1) * pageSize,
+      take: pageSize,
       select: {
         id: true,
         uid: true,
@@ -44,17 +47,47 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
         dislikes: true,
       },
     });
-    console.log("RESPONSE", response);
+
+    const result = articles.map((article) => ({
+      id: article.id,
+      uid: article.uid,
+      title: article.title,
+      description: article.description,
+      content: article.content,
+      likesCount: article.likes.length,
+      dislikesCount: article.dislikes.length,
+    }));
 
     return NextResponse.json(
-      { message: "Articles fetched successfull", data: response },
+      {
+        message: "Articles fetched successfully",
+        data: result,
+      },
       { status: 200 }
     );
   } catch (error) {
-    console.log("error");
+    console.error("ERROR", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
     );
   }
 };
+
+// export const DELETE = async (req: NextRequest): Promise<NextResponse> => {
+//   try {
+    
+//     const response = await db.article.deleteMany();
+
+//     return NextResponse.json(
+//       { message: `${response.count} articles deleted successfully` },
+//       { status: 200 }
+//     );
+//   } catch (error) {
+//     console.error("ERROR", error);
+//     return NextResponse.json(
+//       { message: "Internal server error", error: error.message },
+//       { status: 500 }
+//     );
+//   }
+// };
