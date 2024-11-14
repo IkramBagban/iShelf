@@ -1,9 +1,5 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
-import db from "@/db";
-import { JWTPayload, SignJWT, importJWK } from "jose";
-import { JWT } from "next-auth/jwt";
+import NextAuth from "next-auth";
+import { nextAuthOptions } from "@/lib/auth";
 
 
 

@@ -1,15 +1,31 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 
 import db from "@/db";
 import { generateJWT } from "@/lib/generateJWT";
+import { JWT } from "next-auth/jwt";
 
 interface IUser {
   id: number;
   fullName: string;
   email: string;
   token: string;
+}
+
+interface ISession extends Session {
+  user: {
+    id: number;
+    jwtToken: string;
+    email: string;
+    fullName: string;
+  };
+}
+
+interface IToken extends JWT {
+  uid : number 
+  fullName : string
+  jwtToken : string
 }
 
 interface ICredentials {
@@ -52,12 +68,16 @@ export const nextAuthOptions: NextAuthOptions = {
 
           const jwt = await generateJWT({ id: user.id });
 
+          console.log("USER", user);
+
           const data: IUser = {
             id: user.id,
             fullName: user.fullName,
             email: user.email,
             token: jwt,
           };
+
+          console.log("USER dta", data);
 
           return data;
         } catch (error) {
@@ -69,6 +89,32 @@ export const nextAuthOptions: NextAuthOptions = {
   ],
 
   secret: process.env.NEXTAUTH_SECRET || "Ikku's scret",
+  callbacks: {
+    jwt: async ({ token, user } : {token : IToken, user : IUser}): Promise<JWT> => {
+    
+      const newToken: IToken = token as IToken;
+
+      if (user && token) {
+        newToken.uid = Number(user.id) as number;
+        newToken.fullName = user.fullName;
+        newToken.jwtToken = user.token;
+      }
+
+      return newToken;
+    },
+    session: async ({ session, token }) => {
+     
+      const newSession  = session as ISession;
+
+      if (newSession.user && token.uid) {
+        newSession.user["id"] = token.uid as number;
+        newSession.user.jwtToken = token.jwtToken as string;
+        newSession.user.fullName = token.fullName as string;
+      }
+
+      return newSession;
+    },
+  },
 
   pages: {
     signIn: "/auth/signin",
