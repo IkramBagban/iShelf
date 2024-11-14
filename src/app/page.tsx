@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -53,34 +53,74 @@ const ArticleCard = ({ title, description }) => {
 };
 
 export default function Home() {
-  const [articles, setArticles] = useState(null);
-
+  const [articles, setArticles] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredArticles, setFilteredArticles] = useState(articles);
+  const [filteredArticles, setFilteredArticles] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  // Fetch articles with pagination
+  const fetchArticles = async (page: number) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `/api/articles?page=${page}&pageSize=20`
+      );
+      if (response.status === 200) {
+        const data = response.data.data;
+        setArticles((prev) => [...prev, ...data]);
+        setFilteredArticles((prev) => [...prev, ...data]);
+
+        if (data.length === 0) {
+          setHasMore(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await axios.get("/api/articles");
-      console.log("RSPONSE", response.data.data);
+    if (hasMore) fetchArticles(page);
+  }, [page]);
 
-      if (response.status === 200) {
-        setArticles(response.data.data);
-        setFilteredArticles(response.data.data);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!articles) return console.log("articles state is null");
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    const filtered = articles?.filter((article: any) =>
+    const filtered = articles.filter((article) =>
       article.title.toLowerCase().includes(query)
     );
     setFilteredArticles(filtered);
   };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && hasMore && !loading) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      },
+      {
+        root: null,
+        rootMargin: "0px",
+        threshold: 1.0,
+      }
+    );
+
+    if (observerRef.current) observerRef.current.disconnect();
+    if (filteredArticles.length > 0) {
+      observer.observe(document.querySelector("#infinite-scroll-trigger")!);
+    }
+
+    observerRef.current = observer;
+    return () => observer.disconnect();
+  }, [filteredArticles, hasMore, loading]);
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -97,39 +137,28 @@ export default function Home() {
         </Button>
       </div>
 
-      <div className="flex gap-6">
-        {/* <aside className="flex flex-col bg-muted rounded-lg p-4 w-[20%] h-auto shadow-lg">
-          <div className="space-y-4">
-            <Badge variant="outline" className="w-full py-2 text-center">
-              JavaScript
-            </Badge>
-            <Badge variant="outline" className="w-full py-2 text-center">
-              Web Development
-            </Badge>
-            <Badge variant="outline" className="w-full py-2 text-center">
-              UI/UX Design
-            </Badge>
-            <Badge variant="outline" className="w-full py-2 text-center">
-              React.js
-            </Badge>
-          </div>
-        </aside> */}
-
-        <main className="flex flex-wrap gap-6 w-full">
-          {filteredArticles?.length > 0 ? (
-            filteredArticles.map((article, index) => (
-              <div key={index} className="w-full md:w-[45%] lg:w-[30%]">
-                <ArticleCard
-                  title={article.title}
-                  description={article.description}
-                />
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No articles found.</p>
-          )}
-        </main>
+      <div className="flex flex-wrap gap-6 w-full">
+        {filteredArticles.length > 0 ? (
+          filteredArticles.map((article, index) => (
+            <div key={index} className="w-full md:w-[45%] lg:w-[30%]">
+              <ArticleCard
+                title={article.title}
+                description={article.description}
+              />
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">No articles found.</p>
+        )}
       </div>
+
+      {loading && <p className="text-center text-gray-500">Loading...</p>}
+
+      {hasMore && <div id="infinite-scroll-trigger" className="h-10"></div>}
+
+      {!hasMore && !loading && (
+        <p className="text-center text-gray-500">No more articles to load.</p>
+      )}
     </div>
   );
 }
