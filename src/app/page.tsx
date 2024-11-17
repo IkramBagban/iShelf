@@ -122,7 +122,10 @@ export default function Home() {
 
     if (observerRef.current) observerRef.current.disconnect();
     if (filteredArticles.length > 0) {
-      observer.observe(document.querySelector("#infinite-scroll-trigger")!);
+      const triggerElement = document.querySelector("#infinite-scroll-trigger");
+      if (triggerElement) {
+        observer.observe(triggerElement);
+      }
     }
 
     observerRef.current = observer;
