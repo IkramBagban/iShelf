@@ -15,7 +15,13 @@ import { ThumbsUp, ThumbsDown, MessageCircle, Search } from "lucide-react";
 import axios from "axios";
 
 // Article Card Component
-const ArticleCard = ({ title, description }) => {
+const ArticleCard = ({ title, description, id }) => {
+  const reactArticle = async () => {
+    const response = await axios.post(`/api/reaction/like?articleId=${id}`, {
+      id,
+    });
+    console.log("response", response);
+  };
   return (
     <Card className="border rounded-lg shadow-sm hover:shadow-md transition duration-200 ease-in-out">
       <CardHeader>
@@ -32,6 +38,7 @@ const ArticleCard = ({ title, description }) => {
               variant="ghost"
               size="sm"
               className="flex items-center gap-1"
+              onClick={reactArticle}
             >
               <ThumbsUp className="w-4 h-4" /> Like
             </Button>
@@ -144,6 +151,7 @@ export default function Home() {
               <ArticleCard
                 title={article.title}
                 description={article.description}
+                id={article.id}
               />
             </div>
           ))

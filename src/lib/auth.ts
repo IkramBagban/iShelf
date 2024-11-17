@@ -6,32 +6,8 @@ import db from "@/db";
 import { generateJWT } from "@/lib/generateJWT";
 import { JWT } from "next-auth/jwt";
 
-interface IUser {
-  id: number;
-  fullName: string;
-  email: string;
-  token: string;
-}
+import { IUser, ISession, IToken, ICredentials } from "@/lib/types";
 
-interface ISession extends Session {
-  user: {
-    id: number;
-    jwtToken: string;
-    email: string;
-    fullName: string;
-  };
-}
-
-interface IToken extends JWT {
-  uid : number 
-  fullName : string
-  jwtToken : string
-}
-
-interface ICredentials {
-  email: string;
-  password: string;
-}
 export const nextAuthOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -90,8 +66,13 @@ export const nextAuthOptions: NextAuthOptions = {
 
   secret: process.env.NEXTAUTH_SECRET || "Ikku's scret",
   callbacks: {
-    jwt: async ({ token, user } : {token : IToken, user : IUser}): Promise<JWT> => {
-    
+    jwt: async ({
+      token,
+      user,
+    }: {
+      token: IToken;
+      user: IUser;
+    }): Promise<JWT> => {
       const newToken: IToken = token as IToken;
 
       if (user && token) {
@@ -103,8 +84,7 @@ export const nextAuthOptions: NextAuthOptions = {
       return newToken;
     },
     session: async ({ session, token }) => {
-     
-      const newSession  = session as ISession;
+      const newSession = session as ISession;
 
       if (newSession.user && token.uid) {
         newSession.user["id"] = token.uid as number;

@@ -1,5 +1,30 @@
+import { Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
+
 export interface IUser {
-    fullName: string;
+  id?: number;
+  fullName: string;
+  email: string;
+  token?: string;
+  password?: string;
+}
+
+export interface ISession extends Session {
+  user: {
+    id: number;
+    jwtToken: string;
     email: string;
-    password?: string;
-  }
+    fullName: string;
+  };
+}
+
+export interface IToken extends JWT {
+  uid: number;
+  fullName: string;
+  jwtToken: string;
+}
+
+export interface ICredentials {
+  email: string;
+  password: string;
+}
