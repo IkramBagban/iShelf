@@ -14,42 +14,66 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  fullName String
-  password String
-  articles Article[]
-
-  Reply Reply[]
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  fullName  String
+  password  String
+  articles  Article[]
+  createdAt DateTime   @default(now())
+  // updatedAt DateTime   @updatedAt
+  Reply     Reply[]
+  Reaction  Reaction[]
 }
 
 model Article {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   uid         Int
   title       String
   description String
   content     String
-  likes       Int[]
-  dislikes    Int[]
   comments    Comment[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [uid], references: [id])
+  Reaction    Reaction[]
+}
 
-  user User @relation(fields: [uid], references: [id])
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
+model Reaction {
+  id        Int          @id @default(autoincrement())
+  articleId Int
+  userId    Int
+  type      ReactionType
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  article Article @relation(fields: [articleId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([articleId, userId])
 }
 
 model Comment {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   comment   String
   articleId Int
   replies   Reply[]
-
-  article Article @relation(fields: [articleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  article   Article  @relation(fields: [articleId], references: [id])
 }
 
 model Reply {
-  id          Int    @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   reply       String
   commentId   Int
   commenterId Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   commenter User    @relation(fields: [commenterId], references: [id])
   comment   Comment @relation(fields: [commentId], references: [id])
