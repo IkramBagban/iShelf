@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/db/index";
+import { getServerSession } from "next-auth";
+import { nextAuthOptions } from "@/lib/auth";
+import { ISession } from "@/lib/types";
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
@@ -30,8 +33,11 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
 export const GET = async (req: NextRequest): Promise<NextResponse> => {
   const url = new URL(req.url);
-  const page: number = Number(url.searchParams.get("page")) || 5;
+  const page: number = Number(url.searchParams.get("page")) || 1;
   const pageSize: number = Number(url.searchParams.get("pageSize")) || 10;
+
+  const session: ISession | null = await getServerSession(nextAuthOptions);
+  const userId = session?.user.id || null;
 
   try {
     const articles = await db.article.findMany({
@@ -43,25 +49,24 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
         title: true,
         description: true,
         content: true,
-        likes: true,
-        dislikes: true,
+        Reaction: userId
+          ? {
+              where: {
+                userId: userId,
+              },
+              select: {
+                id: true,
+                type: true,
+              },
+            }
+          : false,
       },
     });
-
-    const result = articles.map((article) => ({
-      id: article.id,
-      uid: article.uid,
-      title: article.title,
-      description: article.description,
-      content: article.content,
-      likesCount: article.likes.length,
-      dislikesCount: article.dislikes.length,
-    }));
 
     return NextResponse.json(
       {
         message: "Articles fetched successfully",
-        data: result,
+        data: articles,
       },
       { status: 200 }
     );
@@ -74,20 +79,19 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
   }
 };
 
-// export const DELETE = async (req: NextRequest): Promise<NextResponse> => {
-//   try {
-    
-//     const response = await db.article.deleteMany();
+export const DELETE = async (req: NextRequest): Promise<NextResponse> => {
+  try {
+    const response = await db.article.deleteMany();
 
-//     return NextResponse.json(
-//       { message: `${response.count} articles deleted successfully` },
-//       { status: 200 }
-//     );
-//   } catch (error) {
-//     console.error("ERROR", error);
-//     return NextResponse.json(
-//       { message: "Internal server error", error: error.message },
-//       { status: 500 }
-//     );
-//   }
-// };
+    return NextResponse.json(
+      { message: `${response.count} articles deleted successfully` },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("ERROR", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+};
