@@ -28,3 +28,8 @@ export interface ICredentials {
   email: string;
   password: string;
 }
+
+export enum REACTION_TYPES {
+  LIKE = "LIKE",
+  DISLIKE = "DISLIKE",
+}

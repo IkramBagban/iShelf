@@ -1,64 +1,11 @@
 "use client";
 
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ThumbsUp, ThumbsDown, MessageCircle, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import axios from "axios";
-
-// Article Card Component
-const ArticleCard = ({ title, description, id }) => {
-  const reactArticle = async () => {
-    const response = await axios.post(`/api/reaction/like?articleId=${id}`, {
-      id,
-    });
-    console.log("response", response);
-  };
-  return (
-    <Card className="border rounded-lg shadow-sm hover:shadow-md transition duration-200 ease-in-out">
-      <CardHeader>
-        <CardTitle className="text-xl">{title}</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Updated on Nov 7, 2024
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-gray-600">{description}</p>
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={reactArticle}
-            >
-              <ThumbsUp className="w-4 h-4" /> Like
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-1"
-            >
-              <ThumbsDown className="w-4 h-4" /> Dislike
-            </Button>
-          </div>
-          <Button variant="ghost" size="sm" className="flex items-center gap-1">
-            <MessageCircle className="w-4 h-4" /> Comment
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
+import ArticleCard from "@/components/ArticleCard";
 export default function Home() {
   const [articles, setArticles] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,7 +16,7 @@ export default function Home() {
 
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  // Fetch articles with pagination
+  console.log("articles", articles)
   const fetchArticles = async (page: number) => {
     setLoading(true);
     try {
@@ -155,6 +102,7 @@ export default function Home() {
                 title={article.title}
                 description={article.description}
                 id={article.id}
+                Reaction = {article.Reaction && article.Reaction[0] ||null}
               />
             </div>
           ))
