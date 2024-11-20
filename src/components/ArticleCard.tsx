@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, MessageCircle } from "lucide-react";
 import { REACTION_TYPES } from "@/lib/types";
 import { reactionSHanlder } from "@/services/reaction";
+import { useRouter } from "next/navigation";
 
 interface Props {
   title: string;
@@ -25,7 +26,7 @@ interface Props {
 
 const ArticleCard: React.FC<Props> = ({ title, description, id, Reaction }) => {
   const [reaction, setReaction] = useState<Props["Reaction"]>(Reaction);
-
+  const router = useRouter()
   const reactionHandler = async (type: REACTION_TYPES) => {
     try {
       const response = await reactionSHanlder(id, type);
@@ -85,7 +86,7 @@ const ArticleCard: React.FC<Props> = ({ title, description, id, Reaction }) => {
             </Button>
           </div>
 
-          <Button variant="ghost" size="sm" className="flex items-center gap-1">
+          <Button onClick={()=> router.push('view-article')} variant="ghost" size="sm" className="flex items-center gap-1">
             <MessageCircle className="w-4 h-4" /> Comment
           </Button>
         </div>
