@@ -22,11 +22,21 @@ interface Props {
     id: number | null;
     type: REACTION_TYPES | null;
   };
+  totalLikes: number;
+  totalDislikes: number;
 }
 
-const ArticleCard: React.FC<Props> = ({ title, description, id, Reaction }) => {
+const ArticleCard: React.FC<Props> = ({
+  title,
+  description,
+  id,
+  Reaction,
+  totalLikes,
+  totalDislikes,
+}) => {
   const [reaction, setReaction] = useState<Props["Reaction"]>(Reaction);
-  const router = useRouter()
+  const router = useRouter();
+
   const reactionHandler = async (type: REACTION_TYPES) => {
     try {
       const response = await reactionSHanlder(id, type);
@@ -37,57 +47,84 @@ const ArticleCard: React.FC<Props> = ({ title, description, id, Reaction }) => {
         return;
       }
 
-      return setReaction({ type: data.type, id: data.id });
+      setReaction({ type: data.type, id: data.id });
     } catch (error) {
-      console.log("error", error);
+      console.error("Reaction error:", error);
     }
   };
 
   return (
     <Card className="border rounded-lg shadow-sm hover:shadow-md transition duration-200 ease-in-out">
       <CardHeader>
-        <CardTitle className="text-xl">{title}</CardTitle>
-        <CardDescription className="text-muted-foreground">
+        <CardTitle className="text-xl font-semibold text-gray-800">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-sm text-gray-500">
           Updated on Nov 7, 2024
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-gray-600">{description}</p>
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center gap-3">
+        <p className="text-gray-700">{description}</p>
+        <div className="flex justify-between items-center mt-6">
+          <div className="flex items-center gap-4">
+            {/* Like Button */}
             <Button
               variant="ghost"
               size="sm"
-              className="flex items-center gap-1"
+              className={`flex items-center gap-2 transition ${
+                reaction?.type === REACTION_TYPES.LIKE
+                  ? "text-blue-500"
+                  : "text-gray-700 hover:text-blue-400"
+              }`}
               onClick={() => reactionHandler(REACTION_TYPES.LIKE)}
             >
-              {reaction?.type === REACTION_TYPES.LIKE ? (
-                <ThumbsUp className="w-4 h-4 text-blue-500 fill-current" />
-              ) : (
-                <ThumbsUp className="w-4 h-4" />
-              )}
-              {reaction?.type === REACTION_TYPES.LIKE ? "Liked" : "Like"}
+              <ThumbsUp
+                className={`w-5 h-5 ${
+                  reaction?.type === REACTION_TYPES.LIKE ? "fill-current" : ""
+                }`}
+              />
+              <span className="text-sm font-medium">{totalLikes}</span>
+              <span className="hidden sm:inline">
+                {reaction?.type === REACTION_TYPES.LIKE ? "Liked" : "Like"}
+              </span>
             </Button>
 
+            {/* Dislike Button */}
             <Button
               variant="ghost"
               size="sm"
-              className="flex items-center gap-1"
+              className={`flex items-center gap-2 transition ${
+                reaction?.type === REACTION_TYPES.DISLIKE
+                  ? "text-red-500"
+                  : "text-gray-700 hover:text-red-400"
+              }`}
               onClick={() => reactionHandler(REACTION_TYPES.DISLIKE)}
             >
-              {reaction?.type === REACTION_TYPES.DISLIKE ? (
-                <ThumbsDown className="w-4 h-4 text-red-500 fill-current" />
-              ) : (
-                <ThumbsDown className="w-4 h-4" />
-              )}
-              {reaction?.type === REACTION_TYPES.DISLIKE
-                ? "Disliked"
-                : "Dislike"}
+              <ThumbsDown
+                className={`w-5 h-5 ${
+                  reaction?.type === REACTION_TYPES.DISLIKE
+                    ? "fill-current"
+                    : ""
+                }`}
+              />
+              <span className="text-sm font-medium">{totalDislikes}</span>
+              <span className="hidden sm:inline">
+                {reaction?.type === REACTION_TYPES.DISLIKE
+                  ? "Disliked"
+                  : "Dislike"}
+              </span>
             </Button>
           </div>
 
-          <Button onClick={()=> router.push('view-article')} variant="ghost" size="sm" className="flex items-center gap-1">
-            <MessageCircle className="w-4 h-4" /> Comment
+          {/* Comment Button */}
+          <Button
+            onClick={() => router.push("view-article")}
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span className="hidden sm:inline">Comment</span>
           </Button>
         </div>
       </CardContent>

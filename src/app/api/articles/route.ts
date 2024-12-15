@@ -63,10 +63,31 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
       },
     });
 
+    
+    const articlesWithReactions = await Promise.all(
+      articles.map(async (article) => {
+        const totalLikes = await db.reaction.count({
+          where: { articleId: article.id, type: "LIKE" },
+        });
+
+        const totalDislikes = await db.reaction.count({
+          where: { articleId: article.id, type: "DISLIKE" },
+        });
+
+        return {
+          ...article,
+          totalLikes,
+          totalDislikes,
+        };
+      })
+    );
+
+
     return NextResponse.json(
       {
         message: "Articles fetched successfully",
-        data: articles,
+        // data: articles,
+        data: articlesWithReactions,
       },
       { status: 200 }
     );
