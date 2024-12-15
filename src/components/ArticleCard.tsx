@@ -34,20 +34,58 @@ const ArticleCard: React.FC<Props> = ({
   totalLikes,
   totalDislikes,
 }) => {
-  const [reaction, setReaction] = useState<Props["Reaction"]>(Reaction);
+  const [reactionState, setReactionState] = useState<{
+    type: REACTION_TYPES | null;
+    likes: number;
+    dislikes: number;
+  }>({
+    type: Reaction?.type || null,
+    likes: totalLikes,
+    dislikes: totalDislikes,
+  });
+
   const router = useRouter();
 
   const reactionHandler = async (type: REACTION_TYPES) => {
     try {
       const response = await reactionSHanlder(id, type);
-
       const { data } = response.data || {};
-      if (!data) {
-        setReaction({ type: null, id: null });
-        return;
-      }
 
-      setReaction({ type: data.type, id: data.id });
+      setReactionState((prev) => {
+        if (!data) {
+          return {
+            ...prev,
+            likes:
+              prev.type === REACTION_TYPES.LIKE ? prev.likes - 1 : prev.likes,
+            dislikes:
+              prev.type === REACTION_TYPES.DISLIKE
+                ? prev.dislikes - 1
+                : prev.dislikes,
+            type: null,
+          };
+        }
+
+        const isSameReaction = prev.type === data.type;
+        return {
+          likes:
+            data.type === REACTION_TYPES.LIKE
+              ? isSameReaction
+                ? prev.likes
+                : prev.likes + 1
+              : prev.type === REACTION_TYPES.LIKE
+              ? prev.likes - 1
+              : prev.likes,
+          dislikes:
+            data.type === REACTION_TYPES.DISLIKE
+              ? isSameReaction
+                ? prev.dislikes
+                : prev.dislikes + 1
+              : prev.type === REACTION_TYPES.DISLIKE
+              ? prev.dislikes - 1
+              : prev.dislikes,
+          type: isSameReaction ? null : data.type,
+        };
+      });
     } catch (error) {
       console.error("Reaction error:", error);
     }
@@ -67,12 +105,11 @@ const ArticleCard: React.FC<Props> = ({
         <p className="text-gray-700">{description}</p>
         <div className="flex justify-between items-center mt-6">
           <div className="flex items-center gap-4">
-            {/* Like Button */}
             <Button
               variant="ghost"
               size="sm"
               className={`flex items-center gap-2 transition ${
-                reaction?.type === REACTION_TYPES.LIKE
+                reactionState?.type === REACTION_TYPES.LIKE
                   ? "text-blue-500"
                   : "text-gray-700 hover:text-blue-400"
               }`}
@@ -80,21 +117,22 @@ const ArticleCard: React.FC<Props> = ({
             >
               <ThumbsUp
                 className={`w-5 h-5 ${
-                  reaction?.type === REACTION_TYPES.LIKE ? "fill-current" : ""
+                  reactionState?.type === REACTION_TYPES.LIKE
+                    ? "fill-current"
+                    : ""
                 }`}
               />
-              <span className="text-sm font-medium">{totalLikes}</span>
+              <span className="text-sm font-medium">{reactionState.likes}</span>
               <span className="hidden sm:inline">
-                {reaction?.type === REACTION_TYPES.LIKE ? "Liked" : "Like"}
+                {reactionState?.type === REACTION_TYPES.LIKE ? "Liked" : "Like"}
               </span>
             </Button>
 
-            {/* Dislike Button */}
             <Button
               variant="ghost"
               size="sm"
               className={`flex items-center gap-2 transition ${
-                reaction?.type === REACTION_TYPES.DISLIKE
+                reactionState?.type === REACTION_TYPES.DISLIKE
                   ? "text-red-500"
                   : "text-gray-700 hover:text-red-400"
               }`}
@@ -102,21 +140,22 @@ const ArticleCard: React.FC<Props> = ({
             >
               <ThumbsDown
                 className={`w-5 h-5 ${
-                  reaction?.type === REACTION_TYPES.DISLIKE
+                  reactionState?.type === REACTION_TYPES.DISLIKE
                     ? "fill-current"
                     : ""
                 }`}
               />
-              <span className="text-sm font-medium">{totalDislikes}</span>
+              <span className="text-sm font-medium">
+                {reactionState.dislikes}
+              </span>
               <span className="hidden sm:inline">
-                {reaction?.type === REACTION_TYPES.DISLIKE
+                {reactionState?.type === REACTION_TYPES.DISLIKE
                   ? "Disliked"
                   : "Dislike"}
               </span>
             </Button>
           </div>
 
-          {/* Comment Button */}
           <Button
             onClick={() => router.push("view-article")}
             variant="ghost"
