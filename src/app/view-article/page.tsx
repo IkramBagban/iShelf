@@ -55,7 +55,12 @@ const ViewArticle = () => {
           <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
           <p className="text-gray-600 mb-4">{article.description}</p>
           <div className="border-t border-gray-300 pt-4">
-            <p className="text-lg text-gray-800">{article.content}</p>
+            <p className="text-lg text-gray-800">
+              <div
+                className="p-4 border rounded-md bg-gray-100"
+                dangerouslySetInnerHTML={{ __html: article.content }}
+              ></div>
+            </p>
           </div>
         </div>
       </SidebarProvider>
