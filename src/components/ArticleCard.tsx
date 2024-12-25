@@ -14,6 +14,7 @@ import { IReactionState, REACTION_TYPES } from "@/lib/types";
 import { articleReactionSHanlder } from "@/services/reaction";
 import { useRouter } from "next/navigation";
 import ReactionButtons from "./ReactionButtons";
+import { useArticleReaction } from "@/hooks/useArticleReaction";
 
 interface Props {
   title: string;
@@ -35,58 +36,15 @@ const ArticleCard: React.FC<Props> = ({
   totalLikes,
   totalDislikes,
 }) => {
-  const [reactionState, setReactionState] = useState<IReactionState>({
-    type: Reaction?.type || null,
-    likes: totalLikes,
-    dislikes: totalDislikes,
-  });
-
   const router = useRouter();
 
-  const reactionHandler = async (type: REACTION_TYPES) => {
-    try {
-      const response = await articleReactionSHanlder(id, type);
-      const { data } = response.data || {};
-
-      setReactionState((prev) => {
-        if (!data) {
-          return {
-            ...prev,
-            likes:
-              prev.type === REACTION_TYPES.LIKE ? prev.likes - 1 : prev.likes,
-            dislikes:
-              prev.type === REACTION_TYPES.DISLIKE
-                ? prev.dislikes - 1
-                : prev.dislikes,
-            type: null,
-          };
-        }
-
-        const isSameReaction = prev.type === data.type;
-        return {
-          likes:
-            data.type === REACTION_TYPES.LIKE
-              ? isSameReaction
-                ? prev.likes
-                : prev.likes + 1
-              : prev.type === REACTION_TYPES.LIKE
-              ? prev.likes - 1
-              : prev.likes,
-          dislikes:
-            data.type === REACTION_TYPES.DISLIKE
-              ? isSameReaction
-                ? prev.dislikes
-                : prev.dislikes + 1
-              : prev.type === REACTION_TYPES.DISLIKE
-              ? prev.dislikes - 1
-              : prev.dislikes,
-          type: isSameReaction ? null : data.type,
-        };
-      });
-    } catch (error) {
-      console.error("Reaction error:", error);
-    }
-  };
+  const { handleReaction, reactionState } = useArticleReaction({
+    id: id,
+    likes: totalLikes,
+    dislikes: totalDislikes,
+    reaction_type: Reaction?.type,
+    reactionHandlerService: articleReactionSHanlder,
+  });
 
   return (
     <Card className="border rounded-lg shadow-sm hover:shadow-md transition duration-200 ease-in-out">
@@ -103,7 +61,7 @@ const ArticleCard: React.FC<Props> = ({
         <div className="flex justify-between items-center mt-6">
           <ReactionButtons
             reactionState={reactionState}
-            reactionHandler={reactionHandler}
+            reactionHandler={handleReaction}
           />
 
           <Button

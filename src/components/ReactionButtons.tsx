@@ -7,7 +7,7 @@ import { REACTION_TYPES, IReactionState } from "@/lib/types";
 
 const ReactionButtons: React.FC<{
   reactionState: IReactionState;
-  reactionHandler: (reaction_type: REACTION_TYPES) => void;
+  reactionHandler: (reaction_type: REACTION_TYPES) => Promise<void>;
 }> = ({ reactionState, reactionHandler }) => {
   return (
     <div className="flex items-center gap-4">
