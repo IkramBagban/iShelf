@@ -16,7 +16,7 @@ export default function Home() {
 
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  console.log("articles", articles)
+  console.log("articles", articles);
   const fetchArticles = async (page: number) => {
     setLoading(true);
     try {

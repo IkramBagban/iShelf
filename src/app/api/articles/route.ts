@@ -33,6 +33,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
 
 export const GET = async (req: NextRequest): Promise<NextResponse> => {
   const url = new URL(req.url);
+  const articleId = url.searchParams.get("id");
   const page: number = Number(url.searchParams.get("page")) || 1;
   const pageSize: number = Number(url.searchParams.get("pageSize")) || 10;
 
@@ -40,6 +41,56 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
   const userId = session?.user.id || null;
 
   try {
+    if (articleId) {
+      const article = await db.article.findUnique({
+        where: { id: Number(articleId) },
+        select: {
+          id: true,
+          uid: true,
+          title: true,
+          description: true,
+          content: true,
+          Reaction: userId
+            ? {
+                where: {
+                  userId: userId,
+                },
+                select: {
+                  id: true,
+                  type: true,
+                },
+              }
+            : false,
+        },
+      });
+
+      if (!article) {
+        return NextResponse.json(
+          { message: "Article not found" },
+          { status: 404 }
+        );
+      }
+
+      const totalLikes = await db.reaction.count({
+        where: { articleId: article.id, type: "LIKE" },
+      });
+
+      const totalDislikes = await db.reaction.count({
+        where: { articleId: article.id, type: "DISLIKE" },
+      });
+
+      return NextResponse.json(
+        {
+          message: "Article fetched successfully",
+          data: {
+            ...article,
+            totalLikes,
+            totalDislikes,
+          },
+        },
+        { status: 200 }
+      );
+    }
     const articles = await db.article.findMany({
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -63,7 +114,6 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
       },
     });
 
-    
     const articlesWithReactions = await Promise.all(
       articles.map(async (article) => {
         const totalLikes = await db.reaction.count({
@@ -81,7 +131,6 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
         };
       })
     );
-
 
     return NextResponse.json(
       {

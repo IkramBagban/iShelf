@@ -157,7 +157,7 @@ const ArticleCard: React.FC<Props> = ({
           </div>
 
           <Button
-            onClick={() => router.push("view-article")}
+            onClick={() => router.push("view-article?article_id=" + id)}
             variant="ghost"
             size="sm"
             className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition"
