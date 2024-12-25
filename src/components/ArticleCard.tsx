@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, MessageCircle } from "lucide-react";
-import { REACTION_TYPES } from "@/lib/types";
-import { reactionSHanlder } from "@/services/reaction";
+import { IReactionState, REACTION_TYPES } from "@/lib/types";
+import { articleReactionSHanlder } from "@/services/reaction";
 import { useRouter } from "next/navigation";
+import ReactionButtons from "./ReactionButtons";
 
 interface Props {
   title: string;
@@ -34,11 +35,7 @@ const ArticleCard: React.FC<Props> = ({
   totalLikes,
   totalDislikes,
 }) => {
-  const [reactionState, setReactionState] = useState<{
-    type: REACTION_TYPES | null;
-    likes: number;
-    dislikes: number;
-  }>({
+  const [reactionState, setReactionState] = useState<IReactionState>({
     type: Reaction?.type || null,
     likes: totalLikes,
     dislikes: totalDislikes,
@@ -48,7 +45,7 @@ const ArticleCard: React.FC<Props> = ({
 
   const reactionHandler = async (type: REACTION_TYPES) => {
     try {
-      const response = await reactionSHanlder(id, type);
+      const response = await articleReactionSHanlder(id, type);
       const { data } = response.data || {};
 
       setReactionState((prev) => {
@@ -104,57 +101,10 @@ const ArticleCard: React.FC<Props> = ({
       <CardContent>
         <p className="text-gray-700">{description}</p>
         <div className="flex justify-between items-center mt-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`flex items-center gap-2 transition ${
-                reactionState?.type === REACTION_TYPES.LIKE
-                  ? "text-blue-500"
-                  : "text-gray-700 hover:text-blue-400"
-              }`}
-              onClick={() => reactionHandler(REACTION_TYPES.LIKE)}
-            >
-              <ThumbsUp
-                className={`w-5 h-5 ${
-                  reactionState?.type === REACTION_TYPES.LIKE
-                    ? "fill-current"
-                    : ""
-                }`}
-              />
-              <span className="text-sm font-medium">{reactionState.likes}</span>
-              <span className="hidden sm:inline">
-                {reactionState?.type === REACTION_TYPES.LIKE ? "Liked" : "Like"}
-              </span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`flex items-center gap-2 transition ${
-                reactionState?.type === REACTION_TYPES.DISLIKE
-                  ? "text-red-500"
-                  : "text-gray-700 hover:text-red-400"
-              }`}
-              onClick={() => reactionHandler(REACTION_TYPES.DISLIKE)}
-            >
-              <ThumbsDown
-                className={`w-5 h-5 ${
-                  reactionState?.type === REACTION_TYPES.DISLIKE
-                    ? "fill-current"
-                    : ""
-                }`}
-              />
-              <span className="text-sm font-medium">
-                {reactionState.dislikes}
-              </span>
-              <span className="hidden sm:inline">
-                {reactionState?.type === REACTION_TYPES.DISLIKE
-                  ? "Disliked"
-                  : "Dislike"}
-              </span>
-            </Button>
-          </div>
+          <ReactionButtons
+            reactionState={reactionState}
+            reactionHandler={reactionHandler}
+          />
 
           <Button
             onClick={() => router.push("view-article?article_id=" + id)}

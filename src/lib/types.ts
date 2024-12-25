@@ -33,3 +33,9 @@ export enum REACTION_TYPES {
   LIKE = "LIKE",
   DISLIKE = "DISLIKE",
 }
+
+export type IReactionState = {
+  type: REACTION_TYPES | null;
+  likes: number;
+  dislikes: number;
+};
