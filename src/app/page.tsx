@@ -16,7 +16,7 @@ export default function Home() {
 
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  console.log("articles", articles)
+  console.log("articles", articles);
   const fetchArticles = async (page: number) => {
     setLoading(true);
     try {
@@ -102,7 +102,9 @@ export default function Home() {
                 title={article.title}
                 description={article.description}
                 id={article.id}
-                Reaction = {article.Reaction && article.Reaction[0] ||null}
+                Reaction={(article.Reaction && article.Reaction[0]) || null}
+                totalLikes={article.totalLikes}
+                totalDislikes={article.totalDislikes}
               />
             </div>
           ))

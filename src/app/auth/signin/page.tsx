@@ -34,7 +34,7 @@ export default function Singin() {
     } catch (error) {
       console.log("ERROR", error);
     } finally {
-      setLoading(true);
+      setLoading(false);
     }
   };
   const handlerMetaChange = (e: ChangeEvent<HTMLInputElement>) => {
